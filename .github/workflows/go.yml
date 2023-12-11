@@ -14,12 +14,12 @@ jobs:
     env:
       MONGO_SERVER_URL: mongodb://localhost:27017
     services:
-      mongo:
+      mongodb:
         image: mongo:latest
         ports:
             - 27017:27017
         volumes:
-          - mongo:/data/db
+          - mongodb:/data/db
     steps:
 
     - name: Set up Go 1.21
@@ -27,6 +27,13 @@ jobs:
       with:
         go-version: 1.21
       id: go
+
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
+      with:
+        mongodb-version: 4.4
+        mongodb-replica-set: test-rs
+        mongodb-port: 27017
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
@@ -40,7 +47,11 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build -v -coverprofile=./profile.cov ./...
+
+    - uses: shogo82148/actions-goveralls@v1
+      with:
+        path-to-profile: ./profile.cov
     
     - name: Test
       run: go test -v
