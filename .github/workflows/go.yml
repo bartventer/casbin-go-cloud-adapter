@@ -28,13 +28,6 @@ jobs:
         go-version: 1.21
       id: go
 
-    - name: Start MongoDB
-      uses: supercharge/mongodb-github-action@1.7.0
-      with:
-        mongodb-version: 4.4
-        mongodb-replica-set: test-rs
-        mongodb-port: 27017
-
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
