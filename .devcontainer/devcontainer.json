@@ -1,0 +1,32 @@
+{
+    "name": "Go Cloud Adapter",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "golang.go",
+                "cweijan.vscode-postgresql-client2",
+                "github.vscode-github-actions"
+            ]
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": true,
+            "configureZshAsDefaultShell": true,
+            "installOhMyZsh": true,
+            "installOhMyZshConfig": true,
+            "upgradePackages": true
+        },
+        "ghcr.io/devcontainers-contrib/features/zsh-plugins:0": {
+            "plugins": "zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search",
+            "omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions.git https://github.com/zsh-users/zsh-syntax-highlighting.git https://github.com/zsh-users/zsh-history-substring-search.git"
+        }
+    }
+}
