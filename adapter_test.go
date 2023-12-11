@@ -128,6 +128,48 @@ func initPolicy(t *testing.T, dbURL string) {
 	)
 }
 
+// TestInMemoryAdapter tests the in-memory adapter.
+func TestInMemoryAdapter(t *testing.T) {
+	// Because the DB is empty at first,
+	// so we need to load the policy from the file adapter (.CSV) first.
+	e, err := casbin.NewEnforcer("examples/rbac_model.conf", "examples/rbac_policy.csv")
+	if err != nil {
+		panic(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	a, err := New(ctx, "mem://casbin_rule/id")
+	if err != nil {
+		panic(err)
+	}
+	// This is a trick to save the current policy to the DB.
+	// We can't call e.SavePolicy() because the adapter in the enforcer is still the file adapter.
+	// The current policy means the policy in the Casbin enforcer (aka in memory).
+	err = a.SavePolicy(e.GetModel())
+	if err != nil {
+		panic(err)
+	}
+
+	// Clear the current policy.
+	e.ClearPolicy()
+	testGetPolicy(t, e, [][]string{})
+
+	// Load the policy from DB.
+	err = a.LoadPolicy(e.GetModel())
+	if err != nil {
+		panic(err)
+	}
+	testGetPolicy(t, e, [][]string{
+		{"alice", "data1", "read"},
+		{"bob", "data2", "write"},
+		{"data2_admin", "data2", "read"},
+		{"data2_admin", "data2", "write"},
+	},
+	)
+}
+
+// Other tests assumes Mongo connection is available.
+
 func TestAdapter(t *testing.T) {
 	initPolicy(t, mongoDbURL)
 
