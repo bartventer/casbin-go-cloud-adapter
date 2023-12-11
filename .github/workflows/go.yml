@@ -39,12 +39,9 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
-      run: go build -v -coverprofile=./profile.cov ./...
-
+    - name: Test
+      run: go test -v -coverprofile=./profile.cov ./...
+      
     - uses: shogo82148/actions-goveralls@v1
       with:
         path-to-profile: ./profile.cov
-    
-    - name: Test
-      run: go test -v
