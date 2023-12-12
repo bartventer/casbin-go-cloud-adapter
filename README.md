@@ -46,7 +46,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	url := "firestore://projects/casbin-project/databases/(default)/documents/casbin_rule?name_field=id"
-	adapter, err := cloudadapter.New(ctx, url)
+	a, err := cloudadapter.New(ctx, url)
 	if err != nil {
 		panic(err)
 	}
@@ -91,7 +91,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	url := "dynamodb://casbin_test?partition_key=id"
-	adapter, err := cloudadapter.New(ctx, url)
+	a, err := cloudadapter.New(ctx, url)
 	if err != nil {
 		panic(err)
 	}
@@ -143,7 +143,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	url := "mongo://casbin_test/casbin_rule?id_field=id"
-	adapter, err := cloudadapter.New(ctx, url)
+	a, err := cloudadapter.New(ctx, url)
 	if err != nil {
 		panic(err)
 	}
@@ -186,7 +186,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	url := "mem://casbin_rule/id"
-	adapter, err := cloudadapter.New(ctx, url)
+	a, err := cloudadapter.New(ctx, url)
 	if err != nil {
 		panic(err)
 	}

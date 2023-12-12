@@ -36,7 +36,6 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	myRes := e.GetPolicy()
 	util.SortArray2D(res)
 	util.SortArray2D(myRes)
-	t.Log("Policy: ", myRes)
 
 	if !util.Array2DEquals(res, myRes) {
 		t.Error("Policy: ", myRes, ", supposed to be ", res)

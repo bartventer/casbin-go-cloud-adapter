@@ -23,7 +23,7 @@ const (
 // CasbinRule represents a rule in Casbin.
 type CasbinRule struct {
 	PType string `docstore:"ptype"`
-	V0    string `docstore:"v0,omitempty"`
+	V0    string `docstore:"v0"`
 	V1    string `docstore:"v1,omitempty"`
 	V2    string `docstore:"v2,omitempty"`
 	V3    string `docstore:"v3,omitempty"`
