@@ -71,9 +71,8 @@ func arrayEqualsWithoutOrder(a [][]string, b [][]string) bool {
 			if _, ok := order[j]; ok {
 				if j == l-1 {
 					return false
-				} else {
-					continue
 				}
+				continue
 			}
 			if mapA[i] == mapB[j] {
 				order[j] = struct{}{}

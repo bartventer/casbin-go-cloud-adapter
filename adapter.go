@@ -42,7 +42,7 @@ type adapter struct {
 	collection *docstore.Collection
 	timeout    time.Duration
 	filtered   bool
-	config     *AdapterConfig
+	config     *Config
 }
 
 // finalizer is the destructor for adapter.
@@ -53,7 +53,7 @@ func finalizer(a *adapter) {
 // NewFilteredAdapter is the constructor for FilteredAdapter.
 // Casbin will not automatically call LoadPolicy() for a filtered adapter.
 func NewFilteredAdapter(ctx context.Context, url string) (persist.FilteredAdapter, error) {
-	a, err := NewWithOption(ctx, &AdapterConfig{URL: url})
+	a, err := NewWithOption(ctx, &Config{URL: url})
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,8 @@ func NewFilteredAdapter(ctx context.Context, url string) (persist.FilteredAdapte
 	return a.(*adapter), nil
 }
 
-type AdapterConfig struct {
+// Config is the configuration for Adapter.
+type Config struct {
 	Timeout    time.Duration // the timeout for any operations on the adapter
 	IsFiltered bool          // whether the adapter is filtered
 	URL        string        // the driver url (e.g. mongodb://localhost:27017)
@@ -70,13 +71,13 @@ type AdapterConfig struct {
 
 // New is the constructor for Adapter.
 func New(ctx context.Context, url string) (persist.BatchAdapter, error) {
-	return NewWithOption(ctx, &AdapterConfig{URL: url})
+	return NewWithOption(ctx, &Config{URL: url})
 }
 
 // NewWithOption is the constructor for Adapter with option.
-func NewWithOption(ctx context.Context, config *AdapterConfig) (persist.BatchAdapter, error) {
+func NewWithOption(ctx context.Context, config *Config) (persist.BatchAdapter, error) {
 	if config == nil {
-		config = &AdapterConfig{}
+		config = &Config{}
 	}
 	if config.Timeout == 0 {
 		config.Timeout = defaultTimeout
@@ -161,7 +162,6 @@ func (a *adapter) LoadFilteredPolicy(model model.Model, filter interface{}) erro
 	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
 	defer cancel()
 
-	// cursor, err := a.collection.Find(ctx, filter)
 	query := a.collection.Query()
 	if len(filters) > 0 {
 		for _, f := range filters {
@@ -172,7 +172,6 @@ func (a *adapter) LoadFilteredPolicy(model model.Model, filter interface{}) erro
 			query = query.Where(fieldPath, f.Op, f.Value)
 		}
 	}
-	// iter := query.Get(ctx)
 	iter := query.Get(ctx)
 	defer iter.Stop()
 	for {
@@ -190,7 +189,6 @@ func (a *adapter) LoadFilteredPolicy(model model.Model, filter interface{}) erro
 		}
 	}
 
-	// return cursor.Close(ctx)
 	return nil
 }
 
@@ -335,35 +333,8 @@ func (a *adapter) RemovePolicy(sec string, ptype string, rule []string) error {
 func (a *adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int, fieldValues ...string) error {
 	query := a.collection.Query().Where(docstore.FieldPath("ptype"), EqualOp, ptype)
 
-	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
-		if fieldValues[0-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v0"), EqualOp, fieldValues[0-fieldIndex])
-		}
-	}
-	if fieldIndex <= 1 && 1 < fieldIndex+len(fieldValues) {
-		if fieldValues[1-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v1"), EqualOp, fieldValues[1-fieldIndex])
-		}
-	}
-	if fieldIndex <= 2 && 2 < fieldIndex+len(fieldValues) {
-		if fieldValues[2-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v2"), EqualOp, fieldValues[2-fieldIndex])
-		}
-	}
-	if fieldIndex <= 3 && 3 < fieldIndex+len(fieldValues) {
-		if fieldValues[3-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v3"), EqualOp, fieldValues[3-fieldIndex])
-		}
-	}
-	if fieldIndex <= 4 && 4 < fieldIndex+len(fieldValues) {
-		if fieldValues[4-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v4"), EqualOp, fieldValues[4-fieldIndex])
-		}
-	}
-	if fieldIndex <= 5 && 5 < fieldIndex+len(fieldValues) {
-		if fieldValues[5-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v5"), EqualOp, fieldValues[5-fieldIndex])
-		}
+	for i := 0; i <= 5; i++ { // max 6 filters (v0-v5)
+		query = a.addFiltersToQuery(query, i, fieldIndex, fieldValues...)
 	}
 
 	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
@@ -427,39 +398,30 @@ func (a *adapter) UpdatePolicies(sec string, ptype string, oldRules, newRules []
 	return nil
 }
 
+// addFiltersToQuery adds filters to query.
+//
+// Parameters:
+// - query: the query to add filters to
+// - filterIndex: the index of the first filter (e.g. 0 for v0, 3 for v3)
+// - fieldIndex: the index of the first filter value in fieldValues
+// - fieldValues: the values of the filters
+//
+// Returns:
+// - the query with filters added
+func (a *adapter) addFiltersToQuery(query *docstore.Query, filterIndex, fieldIndex int, fieldValues ...string) *docstore.Query {
+	if fieldIndex <= filterIndex && filterIndex < fieldIndex+len(fieldValues) && fieldValues[filterIndex-fieldIndex] != "" {
+		query = query.Where(docstore.FieldPath(fmt.Sprintf("v%d", filterIndex)), EqualOp, fieldValues[filterIndex-fieldIndex])
+	}
+	return query
+}
+
 // UpdateFilteredPolicies deletes old rules and adds new rules.
 func (a *adapter) UpdateFilteredPolicies(sec string, ptype string, newPolicies [][]string, fieldIndex int, fieldValues ...string) ([][]string, error) {
 	query := a.collection.Query().Where(docstore.FieldPath("ptype"), EqualOp, ptype)
 
-	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
-		if fieldValues[0-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v0"), EqualOp, fieldValues[0-fieldIndex])
-		}
-	}
-	if fieldIndex <= 1 && 1 < fieldIndex+len(fieldValues) {
-		if fieldValues[1-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v1"), EqualOp, fieldValues[1-fieldIndex])
-		}
-	}
-	if fieldIndex <= 2 && 2 < fieldIndex+len(fieldValues) {
-		if fieldValues[2-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v2"), EqualOp, fieldValues[2-fieldIndex])
-		}
-	}
-	if fieldIndex <= 3 && 3 < fieldIndex+len(fieldValues) {
-		if fieldValues[3-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v3"), EqualOp, fieldValues[3-fieldIndex])
-		}
-	}
-	if fieldIndex <= 4 && 4 < fieldIndex+len(fieldValues) {
-		if fieldValues[4-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v4"), EqualOp, fieldValues[4-fieldIndex])
-		}
-	}
-	if fieldIndex <= 5 && 5 < fieldIndex+len(fieldValues) {
-		if fieldValues[5-fieldIndex] != "" {
-			query = query.Where(docstore.FieldPath("v5"), EqualOp, fieldValues[5-fieldIndex])
-		}
+	// add filters to query
+	for i := 0; i <= 5; i++ { // max 6 filters (v0-v5)
+		query = a.addFiltersToQuery(query, i, fieldIndex, fieldValues...)
 	}
 
 	oldLines := make([][]string, 0)
