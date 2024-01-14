@@ -32,10 +32,21 @@ type CasbinRule struct {
 	ID    string `docstore:"id"`
 }
 
-// Interfaces to be implemented by the adapter
-var _ persist.BatchAdapter = (*adapter)(nil)
-var _ persist.FilteredAdapter = (*adapter)(nil)
-var _ persist.UpdatableAdapter = (*adapter)(nil)
+// Adapter is the interface for Casbin adapters supporting [batch], [filtered] and [auto-save] features.
+//
+// [batch]: https://pkg.go.dev/github.com/casbin/casbin/v2/persist#BatchAdapter
+// [filtered]: https://pkg.go.dev/github.com/casbin/casbin/v2/persist#FilteredAdapter
+// [auto-save]: https://pkg.go.dev/github.com/casbin/casbin/v2/persist#UpdatableAdapter
+type Adapter interface {
+	// BatchAdapter is the interface for Casbin adapters with multiple add and remove policy functions.
+	persist.BatchAdapter
+	// FilteredAdapter is the interface for Casbin adapters with policy filtering feature.
+	persist.FilteredAdapter
+	// UpdatableAdapter is the interface for Casbin adapters with auto-save feature.
+	persist.UpdatableAdapter
+}
+
+var _ Adapter = (*adapter)(nil)
 
 // adapter represents the MongoDB adapter for policy storage.
 type adapter struct {
@@ -52,7 +63,7 @@ func finalizer(a *adapter) {
 
 // NewFilteredAdapter is the constructor for FilteredAdapter.
 // Casbin will not automatically call LoadPolicy() for a filtered adapter.
-func NewFilteredAdapter(ctx context.Context, url string) (persist.FilteredAdapter, error) {
+func NewFilteredAdapter(ctx context.Context, url string) (Adapter, error) {
 	a, err := NewWithOption(ctx, &Config{URL: url})
 	if err != nil {
 		return nil, err
@@ -70,12 +81,12 @@ type Config struct {
 }
 
 // New is the constructor for Adapter.
-func New(ctx context.Context, url string) (persist.BatchAdapter, error) {
+func New(ctx context.Context, url string) (Adapter, error) {
 	return NewWithOption(ctx, &Config{URL: url})
 }
 
 // NewWithOption is the constructor for Adapter with option.
-func NewWithOption(ctx context.Context, config *Config) (persist.BatchAdapter, error) {
+func NewWithOption(ctx context.Context, config *Config) (Adapter, error) {
 	if config == nil {
 		config = &Config{}
 	}
