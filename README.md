@@ -4,7 +4,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/bartventer/casbin-go-cloud-adapter/badge.svg?branch=master)](https://coveralls.io/github/bartventer/casbin-go-cloud-adapter?branch=master)
 [![Build](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/go.yml/badge.svg)](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/go.yml)
 [![Release](https://img.shields.io/github/release/bartventer/casbin-go-cloud-adapter.svg)](https://github.com/bartventer/casbin-go-cloud-adapter/releases/latest)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter?ref=badge_shield)
 
 [Casbin](https://github.com/casbin/casbin) Adapter built on top of [gocloud.dev](https://gocloud.dev/).
 
@@ -227,6 +226,3 @@ Using the Go CDK you can write your application code once using these idiomatic 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter?ref=badge_large)
