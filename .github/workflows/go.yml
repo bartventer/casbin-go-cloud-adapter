@@ -47,8 +47,28 @@ jobs:
         with:
           path-to-profile: ./profile.cov
 
-  semantic-release:
+  license-scan:
+    runs-on: ubuntu-latest
     needs: [build]
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FOSSA
+        run: |
+          curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+  
+      - name: Run FOSSA analysis
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa analyze
+
+      - name: Check FOSSA status
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa test
+
+  semantic-release:
+    needs: [license-scan]
     runs-on: ubuntu-latest
     permissions:
       contents: write
