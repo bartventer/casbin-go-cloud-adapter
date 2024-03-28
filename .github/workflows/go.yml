@@ -2,16 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
     strategy:
       fail-fast: false
       matrix:
-        go-version: [1.21.x,1.22.x]
+        go-version: [1.21.x, 1.22.x]
     name: Build
     runs-on: ubuntu-latest
     env:
@@ -20,38 +20,37 @@ jobs:
       mongodb:
         image: mongo:latest
         ports:
-            - 27017:27017
+          - 27017:27017
         volumes:
           - mongodb:/data/db
     steps:
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+        id: go
 
-    - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v5
-      with:
-        go-version: ${{ matrix.go-version }}
-      id: go
+      - uses: actions/checkout@v4
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
 
-    - uses: actions/checkout@v4
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      - name: Test and Coverage
+        run: go test -v -coverprofile=./profile.cov ./...
 
-    - name: Test and Coverage
-      run: go test -v -coverprofile=./profile.cov ./...
-      
-    - name: Coveralls
-      uses: shogo82148/actions-goveralls@v1
-      with:
-        path-to-profile: ./profile.cov
+      - name: Coveralls
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: ./profile.cov
 
   semantic-release:
     needs: [build]
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       contents: write
       issues: write
     steps:
