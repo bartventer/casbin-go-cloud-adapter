@@ -24,13 +24,13 @@ jobs:
         volumes:
           - mongodb:/data/db
     steps:
+      - uses: actions/checkout@v4
       - name: Set up Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
         id: go
 
-      - uses: actions/checkout@v4
       - name: Get dependencies
         run: |
           go get -v -t -d ./...
