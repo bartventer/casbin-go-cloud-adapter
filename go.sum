@@ -38,8 +38,8 @@ github.com/aws/aws-sdk-go-v2/service/sts v1.28.5 h1:J/PpTf/hllOjx8Xu9DMflff3Fajf
 github.com/aws/aws-sdk-go-v2/service/sts v1.28.5/go.mod h1:0ih0Z83YDH/QeQ6Ori2yGE2XvWYv/Xm+cZc01LC6oK0=
 github.com/aws/smithy-go v1.20.1 h1:4SZlSlMr36UEqC7XOyRVb27XMeZubNcBNN+9IgEPIQw=
 github.com/aws/smithy-go v1.20.1/go.mod h1:krry+ya/rV9RDcV/Q16kpu6ypI4K2czasz0NC3qS14E=
-github.com/casbin/casbin/v2 v2.85.0 h1:VajW9GR/T0fp3SND183gneZGIAdYtl9C7bDYBrqQiGg=
-github.com/casbin/casbin/v2 v2.85.0/go.mod h1:jX8uoN4veP85O/n2674r2qtfSXI6myvxW85f6TH50fw=
+github.com/casbin/casbin/v2 v2.86.0 h1:aC6/OPAJIRsjruZnlkqDAGx8qrI7CwasQz+T+T0uXEw=
+github.com/casbin/casbin/v2 v2.86.0/go.mod h1:jX8uoN4veP85O/n2674r2qtfSXI6myvxW85f6TH50fw=
 github.com/casbin/govaluate v1.1.0/go.mod h1:G/UnbIjZk/0uMNaLwZZmFQrR72tYRZWQkO70si/iR7A=
 github.com/casbin/govaluate v1.1.1 h1:J1rFKIBhiC5xr0APd5HP6rDL+xt+BRoyq1pa4o2i/5c=
 github.com/casbin/govaluate v1.1.1/go.mod h1:G/UnbIjZk/0uMNaLwZZmFQrR72tYRZWQkO70si/iR7A=
