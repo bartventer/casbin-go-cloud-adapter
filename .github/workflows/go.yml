@@ -41,6 +41,7 @@ jobs:
   license-scan:
     runs-on: ubuntu-latest
     needs: [build]
+    name: License Scan
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
