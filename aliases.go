@@ -2,7 +2,7 @@ package adapter
 
 import "gocloud.dev/docstore/driver"
 
-// Type aliases
+// Type aliases.
 type (
 	// Filter represents a filter to be used in a query.
 	Filter = driver.Filter
