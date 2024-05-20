@@ -201,7 +201,7 @@ func (a *adapter) IsFiltered() bool {
 	return a.filtered
 }
 
-// generateID generates an ID for a CasbinRule; use md5(line) to prevent
+// generateID generates an ID for a CasbinRule; use sha256(line) to prevent
 // overwrites of an existing item.
 func generateID(line CasbinRule) string {
 	data := []byte(fmt.Sprint(line))
