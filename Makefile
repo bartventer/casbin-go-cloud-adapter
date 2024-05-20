@@ -18,7 +18,7 @@ lint:
 	$(GOLINT) $(GOLINTFLAGS) ./...
 
 .PHONY: build
-build: vet
+build:
 	$(GO) build -v -o ./tmp/main .
 
 .PHONY: test
