@@ -2,7 +2,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/bartventer/casbin-go-cloud-adapter.svg)](https://pkg.go.dev/github.com/bartventer/casbin-go-cloud-adapter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bartventer/casbin-go-cloud-adapter)](https://goreportcard.com/report/github.com/bartventer/casbin-go-cloud-adapter)
 [![Coverage Status](https://coveralls.io/repos/github/bartventer/casbin-go-cloud-adapter/badge.svg?branch=master)](https://coveralls.io/github/bartventer/casbin-go-cloud-adapter?branch=master)
-[![Build](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/go.yml/badge.svg)](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/go.yml)
+[![Build](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/go.yml/badge.svg)](https://github.com/bartventer/casbin-go-cloud-adapter/actions/workflows/default.yml)
 [![Release](https://img.shields.io/github/release/bartventer/casbin-go-cloud-adapter.svg)](https://github.com/bartventer/casbin-go-cloud-adapter/releases/latest)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fbartventer%2Fcasbin-go-cloud-adapter?ref=badge_shield)
 
@@ -52,7 +52,7 @@ func main() {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -97,7 +97,7 @@ func main() {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -149,7 +149,7 @@ func main() {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -192,7 +192,7 @@ func main() {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("model.conf", a)
 	if err != nil {
 		panic(err)
 	}
