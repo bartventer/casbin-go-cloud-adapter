@@ -23,7 +23,6 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	myRes, err := e.GetPolicy()
 	if err != nil {
 		t.Error(err)
-
 	}
 	util.SortArray2D(res)
 	util.SortArray2D(myRes)
