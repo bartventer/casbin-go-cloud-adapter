@@ -1,26 +1,15 @@
 {
     "name": "Go Cloud Adapter",
-    "dockerComposeFile": [
-        "docker-compose.yml"
-    ],
-    "service": "app",
-    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "GitHub.copilot",
-                "GitHub.copilot-chat",
-                "golang.go",
-                "cweijan.vscode-postgresql-client2",
-                "github.vscode-github-actions"
-            ]
+    "image": "ghcr.io/bartventer/devcontainer-images/base-archlinux:latest",
+    "features": {
+        "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {},
+        "ghcr.io/bartventer/arch-devcontainer-features/go:latest": {
+            "golangciLintVersion": "v1.58.2"
         }
     },
-    "features": {
-        "ghcr.io/devcontainers/features/node:1": {},
-        "ghcr.io/devcontainers/features/common-utils:2": {
-            "configureZshAsDefaultShell": true,
-            "installOhMyZshConfig": false
-        }
-    }
+    "mounts": [
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.vscode-server,target=/home/vscode/.vscode-server-insiders/extensions,type=bind,consistency=cached"
+    ],
+    "remoteUser": "vscode"
 }
