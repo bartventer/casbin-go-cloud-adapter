@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -123,21 +123,14 @@ func (a *adapter) close() {
 }
 
 func loadPolicyLine(line CasbinRule, model model.Model) error {
-	var p = []string{line.PType,
-		line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
+	var p = [7]string{line.PType, line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
+
 	var lineText string
-	if line.V5 != "" {
-		lineText = strings.Join(p, ", ")
-	} else if line.V4 != "" {
-		lineText = strings.Join(p[:6], ", ")
-	} else if line.V3 != "" {
-		lineText = strings.Join(p[:5], ", ")
-	} else if line.V2 != "" {
-		lineText = strings.Join(p[:4], ", ")
-	} else if line.V1 != "" {
-		lineText = strings.Join(p[:3], ", ")
-	} else if line.V0 != "" {
-		lineText = strings.Join(p[:2], ", ")
+	for i := len(p) - 1; i >= 0; i-- {
+		if p[i] != "" {
+			lineText = strings.Join(p[:i+1], ", ")
+			break
+		}
 	}
 
 	return persist.LoadPolicyLine(lineText, model)
@@ -212,8 +205,8 @@ func (a *adapter) IsFiltered() bool {
 // overwrites of an existing item.
 func generateID(line CasbinRule) string {
 	data := []byte(fmt.Sprint(line))
-	has := md5.Sum(data)
-	return fmt.Sprintf("%x", has)
+	hash := sha256.Sum256(data)
+	return string(hash[:])
 }
 
 func savePolicyLine(ptype string, rule []string) CasbinRule {
@@ -221,23 +214,9 @@ func savePolicyLine(ptype string, rule []string) CasbinRule {
 		PType: ptype,
 	}
 
-	if len(rule) > 0 {
-		line.V0 = rule[0]
-	}
-	if len(rule) > 1 {
-		line.V1 = rule[1]
-	}
-	if len(rule) > 2 {
-		line.V2 = rule[2]
-	}
-	if len(rule) > 3 {
-		line.V3 = rule[3]
-	}
-	if len(rule) > 4 {
-		line.V4 = rule[4]
-	}
-	if len(rule) > 5 {
-		line.V5 = rule[5]
+	fields := [6]*string{&line.V0, &line.V1, &line.V2, &line.V3, &line.V4, &line.V5}
+	for i := 0; i < len(rule) && i < len(fields); i++ {
+		*fields[i] = rule[i]
 	}
 
 	// set md5 hash as id
@@ -365,7 +344,6 @@ func (a *adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int,
 		} else {
 			actionList.Delete(got)
 		}
-
 	}
 
 	if err := actionList.Do(ctx); err != nil {
@@ -392,7 +370,6 @@ func (a *adapter) UpdatePolicy(sec string, ptype string, oldRule, newPolicy []st
 
 // UpdatePolicies updates some policy rules to storage, like db, redis.
 func (a *adapter) UpdatePolicies(sec string, ptype string, oldRules, newRules [][]string) error {
-
 	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
 	defer cancel()
 	for i := range oldRules {
@@ -403,7 +380,6 @@ func (a *adapter) UpdatePolicies(sec string, ptype string, oldRules, newRules []
 		if err := a.collection.Actions().Delete(&oldLine).Put(&newLine).Do(ctx); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
@@ -418,7 +394,7 @@ func (a *adapter) UpdatePolicies(sec string, ptype string, oldRules, newRules []
 // - fieldValues: the values of the filters
 //
 // Returns:
-// - the query with filters added
+// - the query with filters added.
 func (a *adapter) addFiltersToQuery(query *docstore.Query, filterIndex, fieldIndex int, fieldValues ...string) *docstore.Query {
 	if fieldIndex <= filterIndex && filterIndex < fieldIndex+len(fieldValues) && fieldValues[filterIndex-fieldIndex] != "" {
 		query = query.Where(docstore.FieldPath(fmt.Sprintf("v%d", filterIndex)), EqualOp, fieldValues[filterIndex-fieldIndex])
@@ -461,8 +437,8 @@ func (a *adapter) UpdateFilteredPolicies(sec string, ptype string, newPolicies [
 	}
 
 	// Insert new policies.
-	for _, newLine := range newLines {
-		actionList.Put(&newLine)
+	for i := range newLines {
+		actionList.Put(&newLines[i])
 	}
 
 	if err := actionList.Do(ctx); err != nil {
@@ -470,31 +446,17 @@ func (a *adapter) UpdateFilteredPolicies(sec string, ptype string, newPolicies [
 	}
 
 	return oldLines, nil
-
 }
 
 func (c *CasbinRule) toStringPolicy() []string {
-	policy := make([]string, 0)
-	if c.PType != "" {
-		policy = append(policy, c.PType)
+	fields := [7]string{c.PType, c.V0, c.V1, c.V2, c.V3, c.V4, c.V5}
+	policy := make([]string, 0, len(fields))
+
+	for _, field := range fields {
+		if field != "" {
+			policy = append(policy, field)
+		}
 	}
-	if c.V0 != "" {
-		policy = append(policy, c.V0)
-	}
-	if c.V1 != "" {
-		policy = append(policy, c.V1)
-	}
-	if c.V2 != "" {
-		policy = append(policy, c.V2)
-	}
-	if c.V3 != "" {
-		policy = append(policy, c.V3)
-	}
-	if c.V4 != "" {
-		policy = append(policy, c.V4)
-	}
-	if c.V5 != "" {
-		policy = append(policy, c.V5)
-	}
+
 	return policy
 }
