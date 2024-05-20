@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	testDbURL     = cmp.Or(os.Getenv("MONGO_SERVER_URL"), "mem://casbin_rule/id")
-	mongoDbURL    = cmp.Or(os.Getenv("MONGO_DB_URL"), "mem://casbin_rule/id")
+	testDBURL     = cmp.Or(os.Getenv("MONGO_DB_URL"), "mem://casbin_rule/id")
 	replicaSetURL = cmp.Or(os.Getenv("MONGO_REPLICA_SET_URL"), "mem://casbin_rule_replica/id")
 )
 
@@ -28,7 +27,6 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	if !util.Array2DEquals(res, myRes) {
 		t.Error("Policy: ", myRes, ", supposed to be ", res)
 	}
-
 }
 
 func testGetPolicyWithoutOrder(t *testing.T, e *casbin.Enforcer, res [][]string) {
@@ -159,7 +157,7 @@ func TestInMemoryAdapter(t *testing.T) {
 // Other tests assumes Mongo connection is available.
 
 func TestAdapter(t *testing.T) {
-	initPolicy(t, mongoDbURL)
+	initPolicy(t, testDBURL)
 
 	// Note: you don't need to look at the above code
 	// if you already have a working DB with policy inside.
@@ -169,7 +167,7 @@ func TestAdapter(t *testing.T) {
 	// NewEnforcer() will load the policy automatically.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := New(ctx, mongoDbURL)
+	a, err := New(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -267,11 +265,11 @@ func TestAdapter(t *testing.T) {
 }
 
 func TestAddPolicies(t *testing.T) {
-	initPolicy(t, mongoDbURL)
+	initPolicy(t, testDBURL)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := New(ctx, mongoDbURL)
+	a, err := New(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -340,7 +338,7 @@ func TestAddPolicies(t *testing.T) {
 func TestDeleteFilteredAdapter(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := NewFilteredAdapter(ctx, mongoDbURL)
+	a, err := NewFilteredAdapter(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -389,7 +387,7 @@ func TestFilteredAdapter(t *testing.T) {
 	// NewEnforcer() will load the policy automatically.
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := NewFilteredAdapter(ctx, mongoDbURL)
+	a, err := NewFilteredAdapter(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -473,11 +471,11 @@ func TestFilteredAdapter(t *testing.T) {
 }
 
 func TestUpdatePolicy(t *testing.T) {
-	initPolicy(t, mongoDbURL)
+	initPolicy(t, testDBURL)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := New(ctx, mongoDbURL)
+	a, err := New(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
@@ -523,34 +521,12 @@ func initUpdateFilteredPolicies(ptype string, newPolicies [][]string, fieldIndex
 	selector := make(map[string]interface{})
 	selector["ptype"] = ptype
 
-	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
-		if fieldValues[0-fieldIndex] != "" {
-			selector["v0"] = fieldValues[0-fieldIndex]
-		}
-	}
-	if fieldIndex <= 1 && 1 < fieldIndex+len(fieldValues) {
-		if fieldValues[1-fieldIndex] != "" {
-			selector["v1"] = fieldValues[1-fieldIndex]
-		}
-	}
-	if fieldIndex <= 2 && 2 < fieldIndex+len(fieldValues) {
-		if fieldValues[2-fieldIndex] != "" {
-			selector["v2"] = fieldValues[2-fieldIndex]
-		}
-	}
-	if fieldIndex <= 3 && 3 < fieldIndex+len(fieldValues) {
-		if fieldValues[3-fieldIndex] != "" {
-			selector["v3"] = fieldValues[3-fieldIndex]
-		}
-	}
-	if fieldIndex <= 4 && 4 < fieldIndex+len(fieldValues) {
-		if fieldValues[4-fieldIndex] != "" {
-			selector["v4"] = fieldValues[4-fieldIndex]
-		}
-	}
-	if fieldIndex <= 5 && 5 < fieldIndex+len(fieldValues) {
-		if fieldValues[5-fieldIndex] != "" {
-			selector["v5"] = fieldValues[5-fieldIndex]
+	vFields := [6]string{"v0", "v1", "v2", "v3", "v4", "v5"}
+	for i := 0; i < len(vFields); i++ {
+		if fieldIndex <= i && i < fieldIndex+len(fieldValues) {
+			if fieldValues[i-fieldIndex] != "" {
+				selector[vFields[i]] = fieldValues[i-fieldIndex]
+			}
 		}
 	}
 
@@ -563,11 +539,11 @@ func initUpdateFilteredPolicies(ptype string, newPolicies [][]string, fieldIndex
 }
 
 func TestUpdateFilteredPolicies(t *testing.T) {
-	initPolicy(t, mongoDbURL)
+	initPolicy(t, testDBURL)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	a, err := New(ctx, mongoDbURL)
+	a, err := New(ctx, testDBURL)
 	if err != nil {
 		panic(err)
 	}
