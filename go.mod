@@ -2,6 +2,8 @@ module github.com/bartventer/casbin-go-cloud-adapter
 
 go 1.22
 
+toolchain go1.22.3
+
 require github.com/casbin/casbin/v2 v2.89.0
 
 require (
