@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"cmp"
 	"context"
 	"os"
 	"testing"
@@ -8,28 +9,15 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/util"
 
-	// Enable In-Memory and MongoDB drivers.
+	// Enable In-Memory driver.
 	_ "github.com/bartventer/casbin-go-cloud-adapter/drivers/memdocstore"
-	_ "github.com/bartventer/casbin-go-cloud-adapter/drivers/mongodocstore"
 )
 
 var (
-	testDbURL     = os.Getenv("MONGO_SERVER_URL")
-	mongoDbURL    = os.Getenv("MONGO_DB_URL")
-	replicaSetURL = os.Getenv("MONGO_REPLICA_SET_URL")
+	testDbURL     = cmp.Or(os.Getenv("MONGO_SERVER_URL"), "mem://casbin_rule/id")
+	mongoDbURL    = cmp.Or(os.Getenv("MONGO_DB_URL"), "mem://casbin_rule/id")
+	replicaSetURL = cmp.Or(os.Getenv("MONGO_REPLICA_SET_URL"), "mem://casbin_rule_replica/id")
 )
-
-func init() {
-	if testDbURL == "" {
-		os.Setenv("MONGO_SERVER_URL", "mongodb://mongo:27017")
-	}
-	if mongoDbURL == "" {
-		mongoDbURL = "mongo://casbin_test/casbin_rule?id_field=id"
-	}
-	if replicaSetURL == "" {
-		replicaSetURL = "mongo://casbin_replica_test/casbin_rule?id_field=id"
-	}
-}
 
 func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	t.Helper()
@@ -44,6 +32,7 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 }
 
 func testGetPolicyWithoutOrder(t *testing.T, e *casbin.Enforcer, res [][]string) {
+	t.Helper()
 	myRes := e.GetPolicy()
 
 	if !arrayEqualsWithoutOrder(myRes, res) {
@@ -86,9 +75,10 @@ func arrayEqualsWithoutOrder(a [][]string, b [][]string) bool {
 }
 
 func initPolicy(t *testing.T, dbURL string) {
+	t.Helper()
 	// Because the DB is empty at first,
 	// so we need to load the policy from the file adapter (.CSV) first.
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", "examples/rbac_policy.csv")
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", "testdata/rbac_policy.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -130,7 +120,7 @@ func initPolicy(t *testing.T, dbURL string) {
 func TestInMemoryAdapter(t *testing.T) {
 	// Because the DB is empty at first,
 	// so we need to load the policy from the file adapter (.CSV) first.
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", "examples/rbac_policy.csv")
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", "testdata/rbac_policy.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -184,7 +174,7 @@ func TestAdapter(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -286,7 +276,7 @@ func TestAddPolicies(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -355,7 +345,7 @@ func TestDeleteFilteredAdapter(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_tenant_service.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_tenant_service.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -404,7 +394,7 @@ func TestFilteredAdapter(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -492,7 +482,7 @@ func TestUpdatePolicy(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -511,7 +501,7 @@ func TestUpdatePolicy(t *testing.T) {
 
 func testUpdatePolicy(t *testing.T, a *adapter) {
 	// NewEnforcer() will load the policy automatically.
-	e, _ := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, _ := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 
 	e.EnableAutoSave(true)
 	e.UpdatePolicy([]string{"alice", "data1", "read"}, []string{"alice", "data1", "write"})
@@ -521,7 +511,7 @@ func testUpdatePolicy(t *testing.T, a *adapter) {
 
 func testUpdatePolicies(t *testing.T, a *adapter) {
 	// NewEnforcer() will load the policy automatically.
-	e, _ := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, _ := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 
 	e.EnableAutoSave(true)
 	e.UpdatePolicies([][]string{{"alice", "data1", "write"}, {"bob", "data2", "write"}}, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}})
@@ -529,7 +519,7 @@ func testUpdatePolicies(t *testing.T, a *adapter) {
 	testGetPolicy(t, e, [][]string{{"alice", "data1", "read"}, {"bob", "data2", "read"}, {"data2_admin", "data2", "read"}, {"data2_admin", "data2", "write"}})
 }
 
-func initUpdateFilteredPolicies(sec string, ptype string, newPolicies [][]string, fieldIndex int, fieldValues ...string) ([]CasbinRule, []CasbinRule, map[string]interface{}) {
+func initUpdateFilteredPolicies(ptype string, newPolicies [][]string, fieldIndex int, fieldValues ...string) ([]CasbinRule, []CasbinRule, map[string]interface{}) {
 	selector := make(map[string]interface{})
 	selector["ptype"] = ptype
 
@@ -582,7 +572,7 @@ func TestUpdateFilteredPolicies(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
@@ -596,7 +586,7 @@ func TestUpdateFilteredPolicies(t *testing.T) {
 	},
 	)
 
-	initUpdateFilteredPolicies("p", "p", [][]string{{"alice", "data1", "write"}}, 0, "alice", "data1", "read")
+	initUpdateFilteredPolicies("p", [][]string{{"alice", "data1", "write"}}, 0, "alice", "data1", "read")
 
 	e.EnableAutoSave(true)
 	e.UpdateFilteredPolicies([][]string{{"alice", "data1", "write"}}, 0, "alice", "data1", "read")
@@ -615,7 +605,7 @@ func TestUpdateFilteredPoliciesTxn(t *testing.T) {
 		panic(err)
 	}
 
-	e, err := casbin.NewEnforcer("examples/rbac_model.conf", a)
+	e, err := casbin.NewEnforcer("testdata/rbac_model.conf", a)
 	if err != nil {
 		panic(err)
 	}
