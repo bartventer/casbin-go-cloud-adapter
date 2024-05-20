@@ -20,7 +20,11 @@ var (
 
 func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	t.Helper()
-	myRes := e.GetPolicy()
+	myRes, err := e.GetPolicy()
+	if err != nil {
+		t.Error(err)
+
+	}
 	util.SortArray2D(res)
 	util.SortArray2D(myRes)
 
@@ -31,8 +35,10 @@ func testGetPolicy(t *testing.T, e *casbin.Enforcer, res [][]string) {
 
 func testGetPolicyWithoutOrder(t *testing.T, e *casbin.Enforcer, res [][]string) {
 	t.Helper()
-	myRes := e.GetPolicy()
-
+	myRes, err := e.GetPolicy()
+	if err != nil {
+		t.Error(err)
+	}
 	if !arrayEqualsWithoutOrder(myRes, res) {
 		t.Error("Policy: ", myRes, ", supposed to be ", res)
 	}
