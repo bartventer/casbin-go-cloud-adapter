@@ -48,7 +48,7 @@ type Adapter interface {
 
 var _ Adapter = (*adapter)(nil)
 
-// adapter represents the MongoDB adapter for policy storage.
+// adapter implements [Adapter].
 type adapter struct {
 	collection *docstore.Collection
 	timeout    time.Duration
@@ -63,14 +63,14 @@ func finalizer(a *adapter) {
 
 // NewFilteredAdapter is the constructor for FilteredAdapter.
 // Casbin will not automatically call LoadPolicy() for a filtered adapter.
-func NewFilteredAdapter(ctx context.Context, url string) (Adapter, error) {
+func NewFilteredAdapter(ctx context.Context, url string) (*adapter, error) {
 	a, err := NewWithOption(ctx, &Config{URL: url})
 	if err != nil {
 		return nil, err
 	}
-	a.(*adapter).filtered = true
+	a.filtered = true
 
-	return a.(*adapter), nil
+	return a, nil
 }
 
 // Config is the configuration for Adapter.
@@ -81,12 +81,12 @@ type Config struct {
 }
 
 // New is the constructor for Adapter.
-func New(ctx context.Context, url string) (Adapter, error) {
+func New(ctx context.Context, url string) (*adapter, error) {
 	return NewWithOption(ctx, &Config{URL: url})
 }
 
 // NewWithOption is the constructor for Adapter with option.
-func NewWithOption(ctx context.Context, config *Config) (Adapter, error) {
+func NewWithOption(ctx context.Context, config *Config) (*adapter, error) {
 	if config == nil {
 		config = &Config{}
 	}
@@ -123,7 +123,7 @@ func (a *adapter) close() {
 }
 
 func loadPolicyLine(line CasbinRule, model model.Model) error {
-	var p = [7]string{line.PType, line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
+	p := [...]string{line.PType, line.V0, line.V1, line.V2, line.V3, line.V4, line.V5}
 
 	var lineText string
 	for i := len(p) - 1; i >= 0; i-- {
@@ -214,7 +214,7 @@ func savePolicyLine(ptype string, rule []string) CasbinRule {
 		PType: ptype,
 	}
 
-	fields := [6]*string{&line.V0, &line.V1, &line.V2, &line.V3, &line.V4, &line.V5}
+	fields := [...]*string{&line.V0, &line.V1, &line.V2, &line.V3, &line.V4, &line.V5}
 	for i := 0; i < len(rule) && i < len(fields); i++ {
 		*fields[i] = rule[i]
 	}
@@ -449,7 +449,7 @@ func (a *adapter) UpdateFilteredPolicies(sec string, ptype string, newPolicies [
 }
 
 func (c *CasbinRule) toStringPolicy() []string {
-	fields := [7]string{c.PType, c.V0, c.V1, c.V2, c.V3, c.V4, c.V5}
+	fields := [...]string{c.PType, c.V0, c.V1, c.V2, c.V3, c.V4, c.V5}
 	policy := make([]string, 0, len(fields))
 
 	for _, field := range fields {

@@ -498,8 +498,8 @@ func TestUpdatePolicy(t *testing.T) {
 		{"data2_admin", "data2", "write"},
 	},
 	)
-	testUpdatePolicy(t, a.(*adapter))
-	testUpdatePolicies(t, a.(*adapter))
+	testUpdatePolicy(t, a)
+	testUpdatePolicies(t, a)
 }
 
 func testUpdatePolicy(t *testing.T, a *adapter) {
