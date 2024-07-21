@@ -62,8 +62,9 @@ jobs:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: fossa test
 
-  semantic-release:
-    name: Semantic Release
+  release:
+    name: Release
+    if: github.event_name == 'push'
     needs: [license-scan]
     runs-on: ubuntu-latest
     permissions:
@@ -71,10 +72,13 @@ jobs:
       issues: write
     steps:
       - uses: actions/checkout@v4
-      - name: Run semantic-release
-        if: github.event_name == 'push'
-        run: |
-          yarn global add semantic-release@17
-          semantic-release
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+      - name: Run release
+        run: make release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
