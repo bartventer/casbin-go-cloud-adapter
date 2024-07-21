@@ -24,3 +24,8 @@ build:
 .PHONY: test
 test:
 	$(GOTEST) $(GOTESTFLAGS) ./...
+
+.PHONY: update
+update:
+	$(GO) mod tidy
+	$(GO) get -u ./...
