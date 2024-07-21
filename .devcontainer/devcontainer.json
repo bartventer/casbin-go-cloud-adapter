@@ -2,7 +2,7 @@
     "name": "Go Cloud Adapter",
     "image": "ghcr.io/bartventer/devcontainer-images/base-archlinux:latest",
     "features": {
-        "ghcr.io/bartventer/devcontainer-features/docker-in-docker:latest": {},
+        "ghcr.io/bartventer/arch-devcontainer-features/docker-in-docker:latest": {},
         "ghcr.io/bartventer/arch-devcontainer-features/go:latest": {
             "golangciLintVersion": "v1.58.2"
         }
