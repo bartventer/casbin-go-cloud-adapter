@@ -1,0 +1,12 @@
+{
+  "name": "casbin-go-cloud-adapter",
+  "repository": "git@github.com:bartventer/casbin-go-cloud-adapter.git",
+  "author": "Bart Venter <bartventer@outlook.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.5.1"
+  },
+  "dependencies": {
+    "semantic-release": "^24.0.0"
+  }
+}
