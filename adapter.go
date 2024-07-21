@@ -2,7 +2,9 @@ package adapter
 
 import (
 	"context"
-	"crypto/sha256"
+	//nolint:gosec // we don't need a secure hash, hence we use md5
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -201,12 +203,11 @@ func (a *adapter) IsFiltered() bool {
 	return a.filtered
 }
 
-// generateID generates an ID for a CasbinRule; use sha256(line) to prevent
-// overwrites of an existing item.
+// generateID generates an ID for a CasbinRule.
 func generateID(line CasbinRule) string {
 	data := []byte(fmt.Sprint(line))
-	hash := sha256.Sum256(data)
-	return string(hash[:])
+	hash := md5.Sum(data) //nolint:gosec // we don't need a secure hash here
+	return hex.EncodeToString(hash[:])
 }
 
 func savePolicyLine(ptype string, rule []string) CasbinRule {
@@ -231,21 +232,19 @@ func (a *adapter) SavePolicy(model model.Model) error {
 		return errors.New("cannot save a filtered policy")
 	}
 
-	var lines []interface{}
-
-	for ptype, ast := range model["p"] {
-		for _, rule := range ast.Policy {
-			line := savePolicyLine(ptype, rule)
-			lines = append(lines, &line)
+	lines := make([]*CasbinRule, 0)
+	types := [...]string{"p", "g"}
+	for _, typ := range types {
+		if ast, ok := model[typ]; ok {
+			for ptype, ast := range ast {
+				for _, rule := range ast.Policy {
+					line := savePolicyLine(ptype, rule)
+					lines = append(lines, &line)
+				}
+			}
 		}
 	}
 
-	for ptype, ast := range model["g"] {
-		for _, rule := range ast.Policy {
-			line := savePolicyLine(ptype, rule)
-			lines = append(lines, &line)
-		}
-	}
 	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
 	defer cancel()
 
