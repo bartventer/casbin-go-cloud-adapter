@@ -1,3 +1,4 @@
+// Package gcpfirestore registers the [gcpfirestore] driver with the docstore package.
 package gcpfirestore
 
 import (

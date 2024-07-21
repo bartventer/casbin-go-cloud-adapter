@@ -1,3 +1,4 @@
+// Package mongodocstore registers the [mongodocstore] driver with the docstore package.
 package mongodocstore
 
 import (

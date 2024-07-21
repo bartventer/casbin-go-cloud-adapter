@@ -1,3 +1,4 @@
+// Package awsdynamodb registers the [awsdynamodb] driver with the docstore package.
 package awsdynamodb
 
 import (

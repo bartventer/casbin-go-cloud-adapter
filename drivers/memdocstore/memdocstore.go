@@ -1,3 +1,4 @@
+// Package memdocstore registers the [memdocstore] driver with the docstore package.
 package memdocstore
 
 import (
