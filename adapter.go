@@ -232,26 +232,20 @@ func (a *adapter) SavePolicy(model model.Model) error {
 		return errors.New("cannot save a filtered policy")
 	}
 
-	lines := make([]*CasbinRule, 0)
-	types := [...]string{"p", "g"}
-	for _, typ := range types {
+	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
+	defer cancel()
+	actionList := a.collection.Actions()
+	for _, typ := range [...]string{"p", "g"} {
 		if ast, ok := model[typ]; ok {
 			for ptype, ast := range ast {
 				for _, rule := range ast.Policy {
 					line := savePolicyLine(ptype, rule)
-					lines = append(lines, &line)
+					actionList.Put(&line)
 				}
 			}
 		}
 	}
 
-	ctx, cancel := context.WithTimeout(context.TODO(), a.timeout)
-	defer cancel()
-
-	actionList := a.collection.Actions()
-	for _, line := range lines {
-		actionList.Put(line)
-	}
 	if err := actionList.Do(ctx); err != nil {
 		return err
 	}
