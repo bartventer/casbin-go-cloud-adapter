@@ -4,7 +4,7 @@ go 1.22
 
 toolchain go1.22.5
 
-require github.com/casbin/casbin/v2 v2.98.0
+require github.com/casbin/casbin/v2 v2.99.0
 
 require (
 	cloud.google.com/go/auth v0.8.1 // indirect
@@ -26,6 +26,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.26.4 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3 // indirect
 	github.com/aws/smithy-go v1.20.3 // indirect
+	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/casbin/govaluate v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
