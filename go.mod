@@ -4,7 +4,7 @@ go 1.22
 
 toolchain go1.22.5
 
-require github.com/casbin/casbin/v2 v2.99.0
+require github.com/casbin/casbin/v2 v2.100.0
 
 require (
 	cloud.google.com/go/auth v0.8.1 // indirect
