@@ -66,8 +66,8 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	gocloud.dev v0.39.0
-	gocloud.dev/docstore/mongodocstore v0.39.0
+	gocloud.dev v0.40.0
+	gocloud.dev/docstore/mongodocstore v0.40.0
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.17.0 // indirect
